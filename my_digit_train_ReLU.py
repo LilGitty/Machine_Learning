@@ -110,8 +110,12 @@ for i in range(10*N): #prepare b
 print("Data Loaded")
 
 # ======================= Training ============================
-input_layer = A_all
-output_layer = b_all
+data_permutation = np.arange(A_all.shape[0])
+np.random.shuffle(data_permutation)
+
+#Shuffle Training data to get Random Batches:
+input_layer = A_all[data_permutation]
+output_layer = b_all[data_permutation]
 
 print("Begin Training")
 train_network(input_layer, output_layer, N ,10000, 0.1)
