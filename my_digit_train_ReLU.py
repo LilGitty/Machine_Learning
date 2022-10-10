@@ -80,6 +80,19 @@ def train_network(training_input, training_output, batch_size = 100, num_of_iter
         batch_output = training_output[i * batch_size : (i+1) * batch_size : ].T
         backwards_propagate(batch_input , batch_output, learn_rate)
 
+def load_weights():
+    global W1, W2, b1, b2
+    W1 = np.load("res/W1.mat")
+    b1 = np.load("res/b1.mat")
+    W2 = np.load("res/W2.mat")
+    b2 = np.load("res/b2.mat")
+
+def dump_weights():
+    W1.dump("res/W1.mat")
+    b1.dump("res/b1.mat")
+    W2.dump("res/W2.mat")
+    b2.dump("res/b2.mat")
+
 #====================== Data ==============================
 dataset = loadmat('mnist.mat')
 training = dataset['training'][0][0]
@@ -90,7 +103,7 @@ training_images = training[3]
 training_labels = training[4]
 training_labels = np.squeeze(training_labels)
 # ======================= Parameters ==========================
-N = 2000 #Number of tests per digit
+N = 100 #Number of tests per digit
 
 # ======================= Create A ============================
 A_all = np.zeros((10*N, 28*28))
@@ -118,18 +131,22 @@ input_layer = A_all[data_permutation]
 output_layer = b_all[data_permutation]
 
 print("Begin Training")
-train_network(input_layer, output_layer, N ,10000, 0.1)
 
-print("Training Done")
-
-#======================== Saving Weights ========================
+try:
+    load_mat = input("Do you want to load current weights? (y/n)")
+    if(load_mat == "y"):
+        load_weights()
+        
+    train_network(input_layer, output_layer, N ,10000, 0.1)
+    
+    print("Training Done")
+    
+except KeyboardInterrupt:
+    pass
 
 print("Saving Weights")
 
-W1.dump("res/W1.mat")
-b1.dump("res/b1.mat")
-W2.dump("res/W2.mat")
-b2.dump("res/b2.mat")
+dump_weights()
 
 #===================== Quick Test ===================
 
