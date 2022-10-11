@@ -80,14 +80,28 @@ def train_network(training_input, training_output, batch_size = 100, num_of_iter
         batch_output = training_output[i * batch_size : (i+1) * batch_size : ].T
         backwards_propagate(batch_input , batch_output, learn_rate)
 
+#===================== Utilities =============================
+
+def one_hot_predict(input):
+    probabilities = predict(input).T
+    return probabilities.argmax(axis=1)
+    
+def test_accuracy(input_layer, output_layer):
+    num_of_inputs =  np.shape(input_layer)[0]
+    predicted = one_hot_predict(input_layer) #remember that this is a matrix size Nx1
+    results = np.array([(predicted[i][0] == output_layer[i]) for i in range(num_of_inputs)])
+    return np.sum(results.astype(int)) / num_of_inputs
+
 def load_weights():
     global W1, W2, b1, b2
     W1 = np.load("res/W1.mat")
     b1 = np.load("res/b1.mat")
     W2 = np.load("res/W2.mat")
     b2 = np.load("res/b2.mat")
+    print("Weights Loaded")
 
 def dump_weights():
+    print("Saving Weights")
     W1.dump("res/W1.mat")
     b1.dump("res/b1.mat")
     W2.dump("res/W2.mat")
@@ -108,12 +122,15 @@ N = 100 #Number of tests per digit
 # ======================= Create A ============================
 A_all = np.zeros((10*N, 28*28))
 b_all = np.zeros((10*N, 10))
+labels_all = np.zeros((10*N, 1))
+
 for i in range(10*N):
     block = int(i / N) % 10
     A_all[i,  : ] = np.reshape(training_images[:, :, training_labels == block][:, :, int(i%N)], (1,28*28))
 
 for i in range(10*N): #prepare b
     digit = int(i / N) % 10
+    labels_all[i] = digit
     for j in range(10):
         if j == digit:
             b_all[i][j] = 1
@@ -123,43 +140,30 @@ for i in range(10*N): #prepare b
 print("Data Loaded")
 
 # ======================= Training ============================
-data_permutation = np.arange(A_all.shape[0])
-np.random.shuffle(data_permutation)
 
-#Shuffle Training data to get Random Batches:
-input_layer = A_all[data_permutation]
-output_layer = b_all[data_permutation]
+load_mat = input("Do you want to load current weights? (y/n)")
+if(load_mat == "y"):
+    load_weights()
 
-print("Begin Training")
+done = False
 
 try:
-    load_mat = input("Do you want to load current weights? (y/n)")
-    if(load_mat == "y"):
-        load_weights()
+    while not done:
+        data_permutation = np.arange(A_all.shape[0])
+        np.random.shuffle(data_permutation)
+
+        #Shuffle Training data to get Random Batches:
+        input_layer = A_all[data_permutation]
+        output_layer = b_all[data_permutation]
         
-    train_network(input_layer, output_layer, N ,10000, 0.1)
-    
-    print("Training Done")
+        print("Begin Training")
+        train_network(input_layer, output_layer, N ,10000, 0.1)   
+        print("Training Done")
+        
+        print("Accuracy: " + str(test_accuracy(A_all, labels_all)))
+        
+        dump_weights()
+        done = input("Do you want to continue training? (y/n)") != "y"
     
 except KeyboardInterrupt:
     pass
-
-print("Saving Weights")
-
-dump_weights()
-
-#===================== Quick Test ===================
-
-# print("Testing")
-
-# for i in range(10):
-    # test_index = i*N
-    # probabilities = predict(A_test[test_index, :])
-    # probabilities = zip(range(10), probabilities)
-    # prediction = sorted(probabilities, key = lambda x: -1 * x[1])[0]
-    # plt.imshow(np.reshape(A_test[test_index, :], (28, 28)), cmap='gray')
-    # plt.title('problematic digit. prediction: ' + str(prediction[0]) + " confidence:" + str(prediction[1]) + "\n real value: " + str(b_test[test_index]))
-    # plt.axis('image')
-    # plt.axis('off')
-    # plt.show(block=False)
-    # plt.waitforbuttonpress()

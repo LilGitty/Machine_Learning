@@ -36,6 +36,16 @@ def predict(input_vector):
     input_vector = np.asmatrix(input_vector, dtype=float).T
     return forward_propagate(input_vector)
 
+def one_hot_predict(input):
+    probabilities = predict(input).T
+    return probabilities.argmax(axis=1)
+    
+def test_accuracy(input_layer, output_layer):
+    num_of_inputs =  np.shape(input_layer)[0]
+    predicted = one_hot_predict(input_layer) #remember that this is a matrix size Nx1
+    results = np.array([(predicted[i][0] == output_layer[i]) for i in range(num_of_inputs)])
+    return np.sum(results.astype(int)) / num_of_inputs
+
 #====================== Data ==============================
 dataset = loadmat('mnist.mat')
 training = dataset['training'][0][0]
@@ -47,17 +57,20 @@ training_labels = training[4]
 training_labels = np.squeeze(training_labels)
 
 # ======================= Parameters ==========================
-N = 10 #Number of tests per digit
+N = 1000 #Number of tests per digit
 
 # ======================= Create A ============================
 A_all = np.zeros((20*N, 28*28))
 b_all = np.zeros((20*N, 10))
+labels_all  = np.zeros((20*N, 1), dtype=int)
+
 for i in range(20*N):
     block = int(i / N) % 10
     A_all[i,  : ] = np.reshape(training_images[:, :, training_labels == block][:, :, int(i%N)], (1,28*28))
 
 for i in range(20*N): #prepare b
     digit = int(i / N) % 10
+    labels_all[i] = digit
     for j in range(10):
         if j == digit:
             b_all[i][j] = 1
@@ -73,15 +86,20 @@ W2 = np.load("res/W2.mat")
 b2 = np.load("res/b2.mat")
 
 #============================ Test Problematic ===========================
+print("Accuracy: " + str(test_accuracy(A_all, labels_all)))
+try:
+    for i in range(10*N):
+        test_index = i
+        probabilities = predict(A_all[test_index, :])
+        probabilities = zip(range(10), probabilities)
+        prediction = sorted(probabilities, key = lambda x: -1 * x[1])[0]
+        plt.imshow(np.reshape(A_all[test_index, :], (28, 28)), cmap='gray')
+        plt.title('problematic digit. prediction: ' + str(prediction[0]) + " confidence:" + str(prediction[1]) + "\n real value: " + str(b_all[test_index]))
+        plt.axis('image')
+        plt.axis('off')
+        plt.show(block=False)
+        plt.waitforbuttonpress()
+    print("Testing Done")
 
-for i in range(10*N):
-    test_index = i
-    probabilities = predict(A_all[test_index, :])
-    probabilities = zip(range(10), probabilities)
-    prediction = sorted(probabilities, key = lambda x: -1 * x[1])[0]
-    plt.imshow(np.reshape(A_all[test_index, :], (28, 28)), cmap='gray')
-    plt.title('problematic digit. prediction: ' + str(prediction[0]) + " confidence:" + str(prediction[1]) + "\n real value: " + str(b_all[test_index]))
-    plt.axis('image')
-    plt.axis('off')
-    plt.show(block=False)
-    plt.waitforbuttonpress()
+except KeyboardInterrupt:
+    pass
