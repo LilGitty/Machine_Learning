@@ -54,7 +54,7 @@ def backwards_propagate(training_input, expected_output, learn_rate = 0.1):
     
     num_of_inputs = np.shape(training_input)[1]
     
-    delta_output = (output_vector - 1) #delta according to cross-entropy and softmax gradient
+    delta_output = output_vector - expected_output #delta according to cross-entropy and softmax gradient
     
     delta_W2 = delta_output @ hidden_vector.T
     delta_b2 = np.sum(delta_output) / num_of_inputs
@@ -90,7 +90,7 @@ def train_network(training_input, training_output, batch_size = 100, num_of_iter
 input_layer = np.array([[2,9], [3,4], [4,1]])
 output_layer = np.array([[0, 1], [0,1], [1,0]])
 
-train_network(input_layer, output_layer, 1, 100, 0.5)
+train_network(input_layer, output_layer, 1, 1000, 0.5)
 
 print("Weights and Bias:\nW1:", W1, "\nW2:", W2, "\nb1:", b1, "\nb2:", b2)
 print("Example tests:", predict([[2,9], [3,4], [4,1]]))

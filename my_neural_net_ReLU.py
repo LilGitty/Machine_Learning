@@ -48,7 +48,7 @@ def backwards_propagate(training_input, expected_output, learn_rate = 0.1):
     num_of_inputs = np.shape(training_input)[1]
     
     delta_output = output_vector - expected_output
-    delta_W2 = delta_output @ np.transpose(hidden_vector) / num_of_inputs
+    delta_W2 = delta_output @ np.transpose(hidden_vector)
     delta_b2 = np.sum(delta_output) / num_of_inputs
     
     delta_hidden_layer = np.multiply(W2.T @ delta_output,  relu_deriv(hidden_vector))
