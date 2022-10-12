@@ -160,10 +160,11 @@ try:
         train_network(input_layer, output_layer, N ,10000, 0.1)   
         print("Training Done")
         
-        print("Accuracy: " + str(test_accuracy(A_all, labels_all)))
+        train_accuracy = test_accuracy(A_all, labels_all)
+        print("Accuracy: " + str(train_accuracy))
         
         dump_weights()
-        done = input("Do you want to continue training? (y/n)") != "y"
+        done = train_accuracy > 0.85 #input("Do you want to continue training? (y/n)") != "y"
     
 except KeyboardInterrupt:
     pass

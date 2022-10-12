@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
+from PIL import Image
 
 ############
 #Memory Setup
@@ -57,25 +58,19 @@ training_labels = training[4]
 training_labels = np.squeeze(training_labels)
 
 # ======================= Parameters ==========================
-N = 1000 #Number of tests per digit
+N = training_count #Number of tests per digit
 
 # ======================= Create A ============================
-A_all = np.zeros((20*N, 28*28))
-b_all = np.zeros((20*N, 10))
-labels_all  = np.zeros((20*N, 1), dtype=int)
+data_permutation = np.arange(N)
+np.random.shuffle(data_permutation)
 
-for i in range(20*N):
-    block = int(i / N) % 10
-    A_all[i,  : ] = np.reshape(training_images[:, :, training_labels == block][:, :, int(i%N)], (1,28*28))
+random_training = training_images[:, : ,data_permutation]
+labels_all = training_labels[data_permutation]
 
-for i in range(20*N): #prepare b
-    digit = int(i / N) % 10
-    labels_all[i] = digit
-    for j in range(10):
-        if j == digit:
-            b_all[i][j] = 1
-        else:
-            b_all[i][j] = 0
+A_all = np.zeros((N, 28*28))
+
+for i in range(N): #reformat A
+    A_all[i] = random_training[:, :, i].reshape(1, 28*28)
 
 print("Data Loaded")
 #============================ Load Weights =========================
@@ -88,13 +83,13 @@ b2 = np.load("res/b2.mat")
 #============================ Test Problematic ===========================
 print("Accuracy: " + str(test_accuracy(A_all, labels_all)))
 try:
-    for i in range(10*N):
+    for i in range(N):
         test_index = i
         probabilities = predict(A_all[test_index, :])
         probabilities = zip(range(10), probabilities)
         prediction = sorted(probabilities, key = lambda x: -1 * x[1])[0]
         plt.imshow(np.reshape(A_all[test_index, :], (28, 28)), cmap='gray')
-        plt.title('problematic digit. prediction: ' + str(prediction[0]) + " confidence:" + str(prediction[1]) + "\n real value: " + str(b_all[test_index]))
+        plt.title('problematic digit. prediction: ' + str(prediction[0]) + " confidence:" + str(prediction[1]) + "\n real value: " + str(labels_all[test_index]))
         plt.axis('image')
         plt.axis('off')
         plt.show(block=False)
@@ -103,3 +98,17 @@ try:
 
 except KeyboardInterrupt:
     pass
+    
+# test_image = Image.open('test.bmp')
+# test_image = np.reshape(test_image, (28,28)) / 255
+# test_image = 1 - test_image
+# probabilities = predict(np.reshape(test_image, (1,28*28)))
+# probabilities = zip(range(10), probabilities)
+# prediction = sorted(probabilities, key = lambda x: -1 * x[1])[0]
+# plt.imshow(test_image, cmap='gray')
+# plt.title('Test Image. prediction: ' + str(prediction[0]) + " confidence:" + str(prediction[1]) + "\n real value: ???")
+# plt.axis('image')
+# plt.axis('off')
+# plt.show(block=False)
+# plt.waitforbuttonpress()
+# print("Testing Done")
