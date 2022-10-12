@@ -18,6 +18,11 @@ def relu_deriv(s, EPS = 0.01):
 def relu(s, EPS = 0.01):
     return (np.multiply((s > 0), s * (1 - EPS)) + EPS*s)
 
+def softmax(v):
+    v = v - v.max(0) #shift by largest value
+    new_v = np.exp(v)
+    return  new_v / new_v.sum(0)
+
 def normalize(A, EPS = 0.1):
     m = np.abs(A).max()
     if(m < EPS):
@@ -28,7 +33,7 @@ def forward_propagate(input_vector):
     global hidden_vector, output_vector
     #accepts columns as input
     hidden_vector = relu(W1 @ input_vector + b1)
-    output_vector = W2 @ hidden_vector + b2
+    output_vector = softmax(W2 @ hidden_vector + b2)
     
     #returns output as columns
     return output_vector

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 ############
 #Memory Setup
 
-input_layer_size = 28*28
+input_layer_size = 28 * 28
 hidden_layer_size = 10
 output_layer_size = 10
 
@@ -23,6 +23,11 @@ def relu_deriv(s, EPS = 0.01):
 def relu(s, EPS = 0.01):
     return (np.multiply((s > 0), s * (1 - EPS)) + EPS*s)
 
+def softmax(v):
+    v = v - v.max(0) #shift by largest value
+    new_v = np.exp(v)
+    return  new_v / new_v.sum(0)
+
 def normalize(A, EPS = 0.1):
     m = np.abs(A).max()
     if(m < EPS):
@@ -33,7 +38,7 @@ def forward_propagate(input_vector):
     global hidden_vector, output_vector
     #accepts columns as input
     hidden_vector = relu(W1 @ input_vector + b1)
-    output_vector = W2 @ hidden_vector + b2
+    output_vector = softmax(W2 @ hidden_vector + b2)
     
     #returns output as columns
     return output_vector
@@ -51,8 +56,9 @@ def backwards_propagate(training_input, expected_output, learn_rate = 0.1):
     
     num_of_inputs = np.shape(training_input)[1]
     
-    delta_output = output_vector - expected_output
-    delta_W2 = delta_output @ np.transpose(hidden_vector) / num_of_inputs
+    delta_output = output_vector - expected_output #delta according to cross-entropy and softmax gradient
+    
+    delta_W2 = delta_output @ hidden_vector.T
     delta_b2 = np.sum(delta_output) / num_of_inputs
     
     delta_hidden_layer = np.multiply(W2.T @ delta_output,  relu_deriv(hidden_vector))
@@ -65,7 +71,6 @@ def backwards_propagate(training_input, expected_output, learn_rate = 0.1):
 
 def update_params(delta_W2, delta_b2, delta_W1, delta_b1, learn_rate):
     global W1, W2, b1, b2
-    
     W2 -= normalize(delta_W2) * learn_rate
     b2 -= normalize(delta_b2) * learn_rate
     W1 -= normalize(delta_W1) * learn_rate
@@ -119,7 +124,7 @@ training_images = training[3]
 training_labels = training[4]
 training_labels = np.squeeze(training_labels)
 # ======================= Parameters ==========================
-N = 10 #Number of tests per digit
+N = 1500 #Number of tests per digit
 
 # ======================= Create A ============================
 A_all = np.zeros((10*N, 28*28))
@@ -143,7 +148,7 @@ print("Data Loaded")
 
 # ======================= Training ============================
 
-load_mat = input("Do you want to load current weights? (y/n)")
+load_mat = "y"#input("Do you want to load current weights? (y/n)")
 if(load_mat == "y"):
     load_weights()
 
@@ -166,7 +171,7 @@ try:
         print("Accuracy: " + str(train_accuracy))
         
         dump_weights()
-        done = train_accuracy > 0.85 #input("Do you want to continue training? (y/n)") != "y"
+        done = train_accuracy > 0.95 #input("Do you want to continue training? (y/n)") != "y"
     
 except KeyboardInterrupt:
     pass
