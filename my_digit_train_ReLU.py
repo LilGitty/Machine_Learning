@@ -39,8 +39,10 @@ def forward_propagate(input_vector):
     return output_vector
     
 def predict(input_vector):
+    #accepts rows as input (easier to format)
     input_vector = np.asmatrix(input_vector, dtype=float).T
-    return forward_propagate(input_vector)
+    #returns output as rows
+    return forward_propagate(input_vector).T
     
 def backwards_propagate(training_input, expected_output, learn_rate = 0.1):
     global hidden_vector, output_vector, W2, W1, b2, b1
@@ -75,7 +77,7 @@ def train_network(training_input, training_output, batch_size = 100, num_of_iter
     training_output = np.asmatrix(training_output, dtype=float)
 
     for i in range(num_of_iterations): #Also possible to take random batches so it doesn't "Overfit"
-        i = int(i % np.shape(training_input)[1] / batch_size)
+        i = int(i % np.shape(training_input)[0] / batch_size)
         batch_input = training_input[i * batch_size : (i+1) * batch_size : ].T
         batch_output = training_output[i * batch_size : (i+1) * batch_size : ].T
         backwards_propagate(batch_input , batch_output, learn_rate)
@@ -83,7 +85,7 @@ def train_network(training_input, training_output, batch_size = 100, num_of_iter
 #===================== Utilities =============================
 
 def one_hot_predict(input):
-    probabilities = predict(input).T
+    probabilities = predict(input)
     return probabilities.argmax(axis=1)
     
 def test_accuracy(input_layer, output_layer):
@@ -117,7 +119,7 @@ training_images = training[3]
 training_labels = training[4]
 training_labels = np.squeeze(training_labels)
 # ======================= Parameters ==========================
-N = 100 #Number of tests per digit
+N = 10 #Number of tests per digit
 
 # ======================= Create A ============================
 A_all = np.zeros((10*N, 28*28))
