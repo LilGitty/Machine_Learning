@@ -15,18 +15,6 @@ def test_accuracy(neural_net, input_layer, output_layer):
     results = np.array([(predicted[i][0] == output_layer[i]) for i in range(num_of_inputs)])
     return np.sum(results.astype(int)) / num_of_inputs
 
-def load_weights(neural_net):
-    weights = np.load("res/weights.npz")
-    neural_net.W1 = weights["W1"]
-    neural_net.b1 = weights["b1"]
-    neural_net.W2 = weights["W2"]
-    neural_net.b2 = weights["b2"]
-    print("Weights Loaded")
-
-def save_weights(neural_net):
-    print("Saving Weights")
-    np.savez("res/weights", W1=neural_net.W1, b1=neural_net.b1, W2=neural_net.W2, b2=neural_net.b2)
-
 #====================== Data ==============================
 dataset = loadmat('mnist.mat')
 training = dataset['training'][0][0]
@@ -68,9 +56,13 @@ print("Data Loaded")
 neural_net = NeuralNet((input_layer_size, hidden_layer_size, output_layer_size))
 
 def main():
-    load_mat = "y"#input("Do you want to load current weights? (y/n)")
+    load_mat = "y" #input("Do you want to load current weights? (y/n)")
     if(load_mat == "y"):
-        load_weights(neural_net)
+        try:
+            neural_net.load_weights("res/iden_digit.npz")
+            print("Weights Loaded")
+        except:
+            print("No Weights Found, Randomly Generating.")
 
     done = False
 
@@ -84,13 +76,14 @@ def main():
             output_layer = b_all[data_permutation]
             
             print("Begin Training")
-            neural_net.train_network(input_layer, output_layer, N ,10000, 0.1)   
+            neural_net.train_network(input_layer, output_layer, N ,100, 0.1)   
             print("Training Done")
             
             train_accuracy = test_accuracy(neural_net, A_all, labels_all)
             print("Accuracy: " + str(train_accuracy))
             
-            save_weights(neural_net)
+            print("Saving Weights")
+            neural_net.save_weights("res/iden_digit")
             done = train_accuracy > 0.95 #input("Do you want to continue training? (y/n)") != "y"
         
     except KeyboardInterrupt:

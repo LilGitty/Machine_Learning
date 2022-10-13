@@ -1,7 +1,7 @@
 import numpy as np
 
-############
-#Memory Setup
+# This is my implementation of a Single-Hidden-Layer Neural Net using Leaky ReLU and SoftMax
+# The Activation Functions are easily changable
 
 class NeuralNet:
     def __init__(self, layers_size):
@@ -50,16 +50,36 @@ class NeuralNet:
         self.W1 -= normalize(delta_W1) * learn_rate
         self.b1 -= normalize(delta_b1) * learn_rate
     
-    def train_network(self, training_input, training_output, batch_size = 100, num_of_iterations = 10000, learn_rate = 0.1):
+    def train_network(self, training_input, training_output, batch_size = 100, num_of_iterations = 1000, learn_rate = 0.1):
         training_input = np.asmatrix(training_input, dtype=float)
         training_output = np.asmatrix(training_output, dtype=float)
 
-        for i in range(num_of_iterations): #Also possible to take random batches so it doesn't "Overfit"
-            i = int(i % np.shape(training_input)[0] / batch_size)
-            batch_input = training_input[i * batch_size : (i+1) * batch_size : ].T
-            batch_output = training_output[i * batch_size : (i+1) * batch_size : ].T
-            self.backwards_propagate(batch_input , batch_output, learn_rate)
+        for iter in range(num_of_iterations): #Also possible to take random batches so it doesn't "Overfit"
+            
+            data_permutation = np.arange(training_input.shape[0])
+            np.random.shuffle(data_permutation)
+
+            #Shuffle Training data to get Random Batches:
+            input_layer = training_input[data_permutation]
+            output_layer = training_output[data_permutation]
+        
+            for i in range(np.shape(training_input)[0] // batch_size):
+                batch_input = input_layer[i * batch_size : (i+1) * batch_size : ].T
+                batch_output = output_layer[i * batch_size : (i+1) * batch_size : ].T
+                self.backwards_propagate(batch_input , batch_output, learn_rate)
+            
+    def load_weights(self, filename):
+        weights = np.load(filename)
+        self.W1 = weights["W1"]
+        self.b1 = weights["b1"]
+        self.W2 = weights["W2"]
+        self.b2 = weights["b2"]
+
+    def save_weights(self, filename):
+        np.savez_compressed(filename, W1=self.W1, b1=self.b1, W2=self.W2, b2=self.b2) #change if this takes too much space
     
+
+#In the future, make these part of the class and let the user decide which to use
 
 def relu_deriv(s, EPS = 0.01):
     return (np.multiply((s > 0), 1 - EPS) + EPS)
