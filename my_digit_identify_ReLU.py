@@ -87,8 +87,15 @@ b2 = np.load("res/b2.mat")
 
 #============================ Test Problematic ===========================
 print("Accuracy: " + str(test_accuracy(A_all, labels_all)))
+
+output_difference = one_hot_predict(A_all) - np.reshape(labels_all.T, (N,1))
+
+problematic_indexes = np.where(output_difference != 0)[0]
+
+#Note: There is a bit of redundence and recalculation left to improve.
+
 try:
-    for i in range(N):
+    for i in problematic_indexes:
         test_index = i
         probabilities = predict(A_all[test_index, :])
         probabilities = zip(range(10), probabilities)
@@ -104,7 +111,7 @@ try:
 except KeyboardInterrupt:
     pass
     
-# test_image = Image.open('test.bmp')
+# test_image = Image.open('test.png')
 # test_image = np.reshape(test_image, (28,28)) / 255
 # test_image = 1 - test_image
 # probabilities = predict(np.reshape(test_image, (1,28*28)))
