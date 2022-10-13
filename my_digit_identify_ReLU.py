@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
-from PIL import Image
 
 ############
 #Memory Setup
@@ -52,6 +51,15 @@ def test_accuracy(input_layer, output_layer):
     results = np.array([(predicted[i][0] == output_layer[i]) for i in range(num_of_inputs)])
     return np.sum(results.astype(int)) / num_of_inputs
 
+def load_weights():
+    global W1, W2, b1, b2
+    weights = np.load("res/weights.npz")
+    W1 = weights["W1"]
+    b1 = weights["b1"]
+    W2 = weights["W2"]
+    b2 = weights["b2"]
+    print("Weights Loaded")
+
 #====================== Data ==============================
 dataset = loadmat('mnist.mat')
 training = dataset['training'][0][0]
@@ -80,10 +88,7 @@ for i in range(N): #reformat A
 print("Data Loaded")
 #============================ Load Weights =========================
 
-W1 = np.load("res/W1.mat")
-b1 = np.load("res/b1.mat")
-W2 = np.load("res/W2.mat")
-b2 = np.load("res/b2.mat")
+load_weights()
 
 #============================ Test Problematic ===========================
 print("Accuracy: " + str(test_accuracy(A_all, labels_all)))
