@@ -18,8 +18,11 @@ def test_accuracy(neural_net, input_layer, output_layer):
 
 def label_b():
     global b_all, labels_all
+    
     b_all = np.zeros((N, output_layer_size))
     labels_all = np.zeros((N, 1))
+    
+    index = 0
     for label in range(10):
         dir_path = os.path.join(license_dir, str(label))
         for training_image_path in os.listdir(dir_path):
@@ -29,7 +32,8 @@ def label_b():
                 b_all[index][0] = 1
             
             labels_all[index] = int(train_digit == label)
-    print("Data Loaded for digit" + str(train_digit))
+            index += 1
+    print("Labels Loaded for digit " + str(train_digit))
 
 # ======================= Parameters ==========================
 
@@ -53,14 +57,13 @@ for label in range(10):
         training_image = Image.open(os.path.join(dir_path,  training_image_path))
         training_image = training_image.convert("L") #Black And White
         A_all[index] = np.reshape(np.asarray(training_image.resize(image_size)), (input_layer_size)) / 255
-        if(train_digit == label):
-            b_all[index][1] =  1 #the rest is automatically 0
-        else:
-            b_all[index][0] = 1
+        # if(train_digit == label):
+            # b_all[index][1] =  1 #the rest is automatically 0
+        # else:
+            # b_all[index][0] = 1
         
-        labels_all[index] = int(train_digit == label)
+        # labels_all[index] = int(train_digit == label)
         index += 1
-        
 print("Data Loaded")
 
 
@@ -97,7 +100,8 @@ def main():
         pass
 
 
-main()
-# for train_digit in range(1, 10):
-    # label_b()
-    # main()
+#main()
+for i in range(2, 10):
+    train_digit = i
+    label_b()
+    main()

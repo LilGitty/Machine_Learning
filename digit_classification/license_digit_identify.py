@@ -51,7 +51,7 @@ print("Data Loaded")
 
 neural_net = NeuralNet((input_layer_size, hidden_layer_size, output_layer_size))
 
-neural_net.load_weights("res/license_digit_0.npz")
+neural_net.load_weights("res/license_digit_" + str(train_digit) + ".npz")
 print("Weights Loaded")
 
 #============================ Test Problematic ===========================
@@ -64,7 +64,7 @@ problematic_indexes = np.where(output_difference != 0)[0]
 #Note: There is a bit of redundence and recalculation left to improve.
 
 try:
-    for test_index in range(N):
+    for test_index in problematic_indexes:
         probabilities = neural_net.predict(A_all[test_index, :])
         plt.imshow(np.reshape(A_all[test_index, :], (50, 25)), cmap='gray')
         plt.title('problematic digit. prediction: ' + str(np.argmax(probabilities)) + " confidence:" + str(np.max(probabilities)) + "\n real value: " + str(b_all[test_index]))
