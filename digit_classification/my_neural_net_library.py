@@ -56,12 +56,12 @@ class NeuralNet:
 
         for iter in range(num_of_iterations): #Also possible to take random batches so it doesn't "Overfit"
             
-            data_permutation = np.arange(training_input.shape[0])
-            np.random.shuffle(data_permutation)
+            # data_permutation = np.arange(training_input.shape[0])
+            # np.random.shuffle(data_permutation)
 
             #Shuffle Training data to get Random Batches:
-            input_layer = training_input[data_permutation]
-            output_layer = training_output[data_permutation]
+            input_layer = training_input#[data_permutation]
+            output_layer = training_output#[data_permutation]
         
             for i in range(np.shape(training_input)[0] // batch_size):
                 batch_input = input_layer[i * batch_size : (i+1) * batch_size : ].T
