@@ -16,13 +16,28 @@ def test_accuracy(neural_net, input_layer, output_layer):
     results = np.array([(predicted[i][0] == output_layer[i]) for i in range(num_of_inputs)])
     return np.sum(results.astype(int)) / num_of_inputs
 
+def label_b():
+    global b_all, labels_all
+    b_all = np.zeros((N, output_layer_size))
+    labels_all = np.zeros((N, 1))
+    for label in range(10):
+        dir_path = os.path.join(license_dir, str(label))
+        for training_image_path in os.listdir(dir_path):
+            if(train_digit == label):
+                b_all[index][1] =  1 #the rest is automatically 0
+            else:
+                b_all[index][0] = 1
+            
+            labels_all[index] = int(train_digit == label)
+    print("Data Loaded for digit" + str(train_digit))
+
 # ======================= Parameters ==========================
 
 input_layer_size = 50*25
 hidden_layer_size = 10
-output_layer_size = 10
+output_layer_size = 2
 N=3872
-
+train_digit = 0
 image_size = (25, 50) #width, height
 license_dir = "license_database/license_plate_numbers"
 
@@ -38,11 +53,16 @@ for label in range(10):
         training_image = Image.open(os.path.join(dir_path,  training_image_path))
         training_image = training_image.convert("L") #Black And White
         A_all[index] = np.reshape(np.asarray(training_image.resize(image_size)), (input_layer_size)) / 255
-        b_all[index][label] = 1 #the rest is automatically 0
-        labels_all[index] = label
+        if(train_digit == label):
+            b_all[index][1] =  1 #the rest is automatically 0
+        else:
+            b_all[index][0] = 1
+        
+        labels_all[index] = int(train_digit == label)
         index += 1
         
 print("Data Loaded")
+
 
 # ======================= Training ============================
 
@@ -52,7 +72,7 @@ def main():
     load_mat = "y" #input("Do you want to load current weights? (y/n)")
     if(load_mat == "y"):
         try:
-            neural_net.load_weights("res/license_digit.npz")
+            neural_net.load_weights("res/license_digit_" + str(train_digit) + ".npz")
             print("Weights Loaded")
         except:
             print("No Weights Found, Randomly Generating.")
@@ -70,7 +90,7 @@ def main():
             print("Accuracy: " + str(train_accuracy))
             
             print("Saving Weights")
-            neural_net.save_weights("res/license_digit")
+            neural_net.save_weights("res/license_digit_" + str(train_digit))
             done = train_accuracy > 0.95 #input("Do you want to continue training? (y/n)") != "y"
         
     except KeyboardInterrupt:
@@ -78,3 +98,6 @@ def main():
 
 
 main()
+# for train_digit in range(1, 10):
+    # label_b()
+    # main()

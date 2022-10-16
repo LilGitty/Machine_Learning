@@ -20,9 +20,9 @@ def test_accuracy(neural_net, input_layer, output_layer):
 
 input_layer_size = 50*25
 hidden_layer_size = 10
-output_layer_size = 10
+output_layer_size = 2
 N=3872
-
+train_digit = 2
 image_size = (25, 50)
 license_dir = "license_database/license_plate_numbers"
 
@@ -38,8 +38,12 @@ for label in range(10):
         training_image = Image.open(os.path.join(dir_path,  training_image_path))
         training_image = training_image.convert("L") #Black And White
         A_all[index] = np.reshape(np.asarray(training_image.resize(image_size)), (input_layer_size)) / 255
-        b_all[index][label] = 1 #the rest is automatically 0
-        labels_all[index] = label
+        if(train_digit == label):
+            b_all[index][1] =  1 #the rest is automatically 0
+        else:
+            b_all[index][0] = 1
+        
+        labels_all[index] = int(train_digit == label)
         index += 1
         
 print("Data Loaded")
@@ -47,7 +51,7 @@ print("Data Loaded")
 
 neural_net = NeuralNet((input_layer_size, hidden_layer_size, output_layer_size))
 
-neural_net.load_weights("res/license_digit.npz")
+neural_net.load_weights("res/license_digit_0.npz")
 print("Weights Loaded")
 
 #============================ Test Problematic ===========================
@@ -60,7 +64,7 @@ problematic_indexes = np.where(output_difference != 0)[0]
 #Note: There is a bit of redundence and recalculation left to improve.
 
 try:
-    for test_index in problematic_indexes:
+    for test_index in range(N):
         probabilities = neural_net.predict(A_all[test_index, :])
         plt.imshow(np.reshape(A_all[test_index, :], (50, 25)), cmap='gray')
         plt.title('problematic digit. prediction: ' + str(np.argmax(probabilities)) + " confidence:" + str(np.max(probabilities)) + "\n real value: " + str(b_all[test_index]))
