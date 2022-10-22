@@ -40,7 +40,7 @@ def label_b():
 input_layer_size = 50*25
 hidden_layer_size = 10
 output_layer_size = 2
-N=3872
+N=3862
 train_digit = 0
 image_size = (25, 50) #width, height
 license_dir = "license_database/license_plate_numbers"
