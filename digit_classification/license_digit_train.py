@@ -101,7 +101,7 @@ def main():
 
 
 #main()
-for i in range(2, 10):
+for i in range(0, 10):
     train_digit = i
     label_b()
     main()
