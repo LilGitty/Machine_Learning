@@ -76,7 +76,7 @@ def main():
             # output_layer = b_all[data_permutation]
             
             print("Begin Training")
-            neural_net.train_network(A_all, b_all, N ,100, 0.1)   
+            neural_net.train_network(A_all, b_all, 100, 0.1)   
             print("Training Done")
             
             train_accuracy = test_accuracy(neural_net, A_all, b_all)

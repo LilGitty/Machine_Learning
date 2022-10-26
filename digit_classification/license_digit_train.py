@@ -80,22 +80,30 @@ def main():
         except:
             print("No Weights Found, Randomly Generating.")
 
-    done = False
-
+    num_of_iterations = 0
+    MAX_ITERATION = 10
+    
     try:
-        while not done:
+        while num_of_iterations < MAX_ITERATION:
         
+            data_permutation = np.arange(A_all.shape[0])
+            np.random.shuffle(data_permutation) #if this is better for training or not
+            
             print("Begin Training")
-            neural_net.train_network(A_all, b_all, N ,1000, 0.1)   
+            neural_net.train_network(A_all[data_permutation], b_all[data_permutation], 1000, 0.1)   
             print("Training Done")
             
-            train_accuracy = test_accuracy(neural_net, A_all, labels_all)
-            print("Accuracy: " + str(train_accuracy))
+            if num_of_iterations % 3 == 0:
+                train_accuracy = test_accuracy(neural_net, A_all, labels_all)
+                print("Accuracy: " + str(train_accuracy))
+                if train_accuracy > 0.95:
+                    num_of_iterations = MAX_ITERATION #input("Do you want to continue training? (y/n)") != "y"
             
             print("Saving Weights")
             neural_net.save_weights("res/license_digit_" + str(train_digit))
-            done = train_accuracy > 0.95 #input("Do you want to continue training? (y/n)") != "y"
-        
+            
+            num_of_iterations += 1
+
     except KeyboardInterrupt:
         pass
 
