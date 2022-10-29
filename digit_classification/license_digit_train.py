@@ -40,7 +40,7 @@ def label_b():
 input_layer_size = 50*25
 hidden_layer_size = 10
 output_layer_size = 2
-N=3862
+N=18069
 train_digit = 0
 image_size = (25, 50) #width, height
 license_dir = "license_database/license_plate_numbers"
@@ -82,25 +82,29 @@ def main():
 
     num_of_iterations = 0
     MAX_ITERATION = 10
+    max_accuracy = 0
     
     try:
         while num_of_iterations < MAX_ITERATION:
         
-            data_permutation = np.arange(A_all.shape[0])
-            np.random.shuffle(data_permutation) #if this is better for training or not
+            # data_permutation = np.arange(A_all.shape[0])
+            # np.random.shuffle(data_permutation) #if this is better for training or not
             
             print("Begin Training")
-            neural_net.train_network(A_all[data_permutation], b_all[data_permutation], 1000, 0.1)   
+            neural_net.train_network(A_all, b_all, 1000, 0.01)   
             print("Training Done")
             
-            if num_of_iterations % 3 == 0:
+            if num_of_iterations % 1 == 0:
+            
                 train_accuracy = test_accuracy(neural_net, A_all, labels_all)
                 print("Accuracy: " + str(train_accuracy))
+                
+                if train_accuracy > max_accuracy:
+                    print("Saving Weights")
+                    neural_net.save_weights("res/license_digit_" + str(train_digit))
+                    
                 if train_accuracy > 0.95:
                     num_of_iterations = MAX_ITERATION #input("Do you want to continue training? (y/n)") != "y"
-            
-            print("Saving Weights")
-            neural_net.save_weights("res/license_digit_" + str(train_digit))
             
             num_of_iterations += 1
 

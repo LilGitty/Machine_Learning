@@ -26,7 +26,7 @@ def test_accuracy(digit_nets, input_layer, output_layer):
 input_layer_size = 50*25
 hidden_layer_size = 10
 output_layer_size = 2
-N=3862
+N=18069
 image_size = (25, 50)
 license_dir = "license_database/license_plate_numbers"
 
