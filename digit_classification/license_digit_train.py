@@ -5,7 +5,6 @@ from PIL import Image
 import os
 
 #===================== Utilities =============================
-
 def one_hot_predict(neural_net, input):
     probabilities = neural_net.predict(input)
     return probabilities.argmax(axis=1)
@@ -40,7 +39,7 @@ def label_b():
 input_layer_size = 50*25
 hidden_layer_size = 10
 output_layer_size = 2
-N=18069
+N=12151
 train_digit = 0
 image_size = (25, 50) #width, height
 license_dir = "license_database/license_plate_numbers"

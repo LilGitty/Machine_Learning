@@ -1,4 +1,5 @@
 from my_neural_net_library import *
+from my_filter import *
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -26,7 +27,7 @@ def test_accuracy(digit_nets, input_layer, output_layer):
 input_layer_size = 50*25
 hidden_layer_size = 10
 output_layer_size = 2
-N=18069
+N=12151
 image_size = (25, 50)
 license_dir = "license_database/license_plate_numbers"
 
@@ -40,7 +41,11 @@ for label in range(10):
     for training_image_path in os.listdir(dir_path):
         training_image = Image.open(os.path.join(dir_path,  training_image_path))
         training_image = training_image.convert("L") #Black And White
-        A_all[index] = np.reshape(np.asarray(training_image.resize(image_size)), (input_layer_size)) / 255
+        A_all[index] = np.reshape(np.asarray(training_image.resize(image_size)), (input_layer_size)) / 255 #REMEMBER THAT IT WORKS WELL ON NORMALIZED IMAGES
+        A_all[index] = filter_image(A_all[index])
+        
+        # if(index == 60):
+            # print(training_image_path)
         
         labels_all[index] = label
         index += 1
@@ -69,8 +74,10 @@ np.set_printoptions(precision=4)
 
 try:
     for test_index in problematic_indexes:
-        probabilities = predict_probabilities(digit_nets, A_all[test_index, :])
-        plt.imshow(np.reshape(A_all[test_index, :], (50, 25)), cmap='gray')
+        #print(test_index)
+        pred_image = A_all[test_index, :]
+        probabilities = predict_probabilities(digit_nets, pred_image)
+        plt.imshow(np.reshape(pred_image, (50, 25)), cmap='gray')
         plt.title('prediction: ' + str(np.argmax(probabilities)) + " probabilities:" + str(probabilities) + "\n real value: " + str(labels_all[test_index]))
         plt.axis('image')
         plt.axis('off')
